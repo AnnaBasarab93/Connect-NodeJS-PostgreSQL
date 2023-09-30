@@ -1,13 +1,13 @@
 import express from 'express';
-import usersRouter from './routers/users.js'
-import ordersRouter from './routers/oders.js';
+import usersRouter from './routers/users.js';
+import ordersRouter from './routers/orders.js';
 import 'dotenv/config';
 
 const app = express();
 
 app.use(express.json());
 app.use('/api/users', usersRouter);
-app.use ('api/orders', ordersRouter)
+app.use ('/api/orders', ordersRouter);
 
 
 
