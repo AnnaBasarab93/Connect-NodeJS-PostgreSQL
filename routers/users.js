@@ -35,7 +35,7 @@ usersRouter.get("/:id", async (req, res) => {
 usersRouter.post("/",[
     check('first_name').notEmpty().isString(),
     check('last_name').notEmpty().isString(),
-    check('age').notEmpty().isString(),
+    check('age').notEmpty().isInt(),
 ], async (req, res) => {
     const errors = validationResult(req);
         if(!errors.isEmpty()){
@@ -63,7 +63,7 @@ usersRouter.put("/:id",[
         if(!errors.isEmpty()){
         return res.status(400).json({ errors: errors.array() })
         };
-        
+
     const {first_name, last_name, age} = req.body;
     const {id} = req.params;
         try {

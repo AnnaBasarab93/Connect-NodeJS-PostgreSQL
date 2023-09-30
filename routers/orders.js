@@ -1,4 +1,5 @@
 import express from 'express';
+import { check, validationResult } from 'express-validator';
 const ordersRouter = express.Router();
 import pg from 'pg';
 const { Pool } = pg;
@@ -10,7 +11,6 @@ const pool = new Pool();
 ordersRouter.get("/", async(req, res) => {
     try{
         const {rows} = await pool.query('SELECT * FROM orders');
-        console.log(rows)
         res.json(rows)
     }catch(error) {
         res.status(500).json(error)
@@ -32,7 +32,16 @@ ordersRouter.get("/:id", async (req, res) => {
 
 //POST / -> To create a new order
 
-ordersRouter.post("/", async (req, res) => {
+ordersRouter.post("/",[
+    check('price').notEmpty().isInt(),
+    check('date').notEmpty().isDate(),
+    check('user_id').notEmpty().isInt(),
+], async (req, res) => {
+    const errors = validationResult(req);
+        if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    };
+
     const {price, date, user_id} = req.body;
     try {
         const {rows} = await pool.query('INSERT INTO orders(price, date, user_id) VALUES($1, $2, $3) RETURNING *;', [price, date, user_id]);
@@ -45,7 +54,16 @@ ordersRouter.post("/", async (req, res) => {
 
 //PUT /:id  :  To edit one order (with the id) 
 
-ordersRouter.put("/:id", async (req, res) => {
+ordersRouter.put("/:id", [
+    check('price').notEmpty().isInt(),
+    check('date').notEmpty().isDate(),
+    check('user_id').notEmpty().isInt(),
+], async (req, res) => {
+    const errors = validationResult(req);
+        if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    };
+    
     const {price, date, user_id} = req.body;
     const {id} = req.params;
     try {
