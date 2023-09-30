@@ -1,16 +1,14 @@
 import express from 'express';
 const usersRouter = express.Router();
 import { check, validationResult } from 'express-validator';
-import pg from 'pg';
-const { Pool } = pg;
-
-const pool = new Pool();
+import  db from '../db/index.js';
 
 //GET  /  : To get all the users 
 
 usersRouter.get("/", async(req, res) => {
     try{
-        const {rows} = await pool.query('SELECT * FROM users');
+        const {rows} = await db.query('SELECT * FROM users');
+        console.log(rows)
         res.json(rows)
     }catch(error) {
         res.status(500).json(error)
@@ -21,7 +19,7 @@ usersRouter.get("/", async(req, res) => {
 usersRouter.get("/:id", async (req, res) => {
     const {id} = req.params;
         try{
-            const {rows} = await pool.query('SELECT * FROM users WHERE id=$1;', [id])
+            const {rows} = await db.query('SELECT * FROM users WHERE id=$1;', [id])
             console.log(rows[0])
             res.json(rows[0])
 
@@ -44,7 +42,7 @@ usersRouter.post("/",[
 
     const {first_name, last_name, age} = req.body;
     try {
-        const {rows} = await pool.query('INSERT INTO users(first_name, last_name, age) VALUES($1, $2, $3) RETURNING *;', [first_name, last_name, age]);
+        const {rows} = await db.query('INSERT INTO users(first_name, last_name, age) VALUES($1, $2, $3) RETURNING *;', [first_name, last_name, age]);
         res.json(rows[0])
 
     } catch(err){
@@ -67,7 +65,7 @@ usersRouter.put("/:id",[
     const {first_name, last_name, age} = req.body;
     const {id} = req.params;
         try {
-        const {rows} = await pool.query('UPDATE users SET first_name=$1, last_name=$2, age=$3  WHERE id=$4 RETURNING *;', [first_name, last_name, age, id]);
+        const {rows} = await db.query('UPDATE users SET first_name=$1, last_name=$2, age=$3  WHERE id=$4 RETURNING *;', [first_name, last_name, age, id]);
         res.json(rows[0])
 
     } catch(err){
@@ -80,7 +78,7 @@ usersRouter.put("/:id",[
 usersRouter.delete("/:id", async (req, res) => {
     const {id} = req.params;
     try {
-        const {rows} = await pool.query('DELETE FROM users WHERE id=$1 RETURNING *;', [id]);
+        const {rows} = await db.query('DELETE FROM users WHERE id=$1 RETURNING *;', [id]);
         res.json(rows[0])
 
     } catch(err){
