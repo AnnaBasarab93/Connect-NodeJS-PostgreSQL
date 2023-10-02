@@ -32,16 +32,15 @@ ordersRouter.get("/:id", async (req, res) => {
 ordersRouter.post("/",[
     check('price').notEmpty().isInt(),
     check('date').notEmpty().isDate(),
-    check('user_id').notEmpty().isInt(),
 ], async (req, res) => {
     const errors = validationResult(req);
         if(!errors.isEmpty()){
         return res.status(400).json({ errors: errors.array() });
     };
 
-    const {price, date, user_id} = req.body;
+    const {price, date} = req.body;
     try {
-        const {rows} = await pool.query('INSERT INTO orders(price, date, user_id) VALUES($1, $2, $3) RETURNING *;', [price, date, user_id]);
+        const {rows} = await pool.query('INSERT INTO orders(price, date) VALUES($1, $2) RETURNING *;', [price, date]);
         res.json(rows[0])
 
     } catch(err){
@@ -54,17 +53,16 @@ ordersRouter.post("/",[
 ordersRouter.put("/:id", [
     check('price').notEmpty().isInt(),
     check('date').notEmpty().isDate(),
-    check('user_id').notEmpty().isInt(),
 ], async (req, res) => {
     const errors = validationResult(req);
         if(!errors.isEmpty()){
         return res.status(400).json({ errors: errors.array() });
     };
 
-    const {price, date, user_id} = req.body;
+    const {price, date} = req.body;
     const {id} = req.params;
     try {
-        const {rows} = await pool.query('UPDATE orders SET price=$1, date=$2, user_id=$3  WHERE id=$4 RETURNING *;', [price, date, user_id, id]);
+        const {rows} = await pool.query('UPDATE orders SET price=$1, date=$2 WHERE id=$4 RETURNING *;', [price, date, id]);
         res.json(rows[0])
 
     } catch(err){
