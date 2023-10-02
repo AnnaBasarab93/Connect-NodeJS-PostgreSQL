@@ -1,13 +1,13 @@
 import express from 'express';
 import { check, validationResult } from 'express-validator';
 const ordersRouter = express.Router();
-import db from '../db/index.js';
+import pool from '../db/pool.js';
 
 //GET  /  : To get all the orders 
 
 ordersRouter.get("/", async(req, res) => {
     try{
-        const {rows} = await db.query('SELECT * FROM orders');
+        const {rows} = await pool.query('SELECT * FROM orders');
         res.json(rows)
     }catch(error) {
         res.status(500).json(error)
@@ -19,7 +19,7 @@ ordersRouter.get("/", async(req, res) => {
 ordersRouter.get("/:id", async (req, res) => {
     const {id} = req.params;
         try{
-            const {rows} = await db.query('SELECT * FROM orders WHERE id=$1;', [id])
+            const {rows} = await pool.query('SELECT * FROM orders WHERE id=$1;', [id])
             res.json(rows[0])
 
         }catch(error){
@@ -41,7 +41,7 @@ ordersRouter.post("/",[
 
     const {price, date, user_id} = req.body;
     try {
-        const {rows} = await db.query('INSERT INTO orders(price, date, user_id) VALUES($1, $2, $3) RETURNING *;', [price, date, user_id]);
+        const {rows} = await pool.query('INSERT INTO orders(price, date, user_id) VALUES($1, $2, $3) RETURNING *;', [price, date, user_id]);
         res.json(rows[0])
 
     } catch(err){
@@ -64,7 +64,7 @@ ordersRouter.put("/:id", [
     const {price, date, user_id} = req.body;
     const {id} = req.params;
     try {
-        const {rows} = await db.query('UPDATE orders SET price=$1, date=$2, user_id=$3  WHERE id=$4 RETURNING *;', [price, date, user_id, id]);
+        const {rows} = await pool.query('UPDATE orders SET price=$1, date=$2, user_id=$3  WHERE id=$4 RETURNING *;', [price, date, user_id, id]);
         res.json(rows[0])
 
     } catch(err){
@@ -78,7 +78,7 @@ ordersRouter.put("/:id", [
 ordersRouter.delete("/:id", async (req, res) => {
     const {id} = req.params;
     try {
-        const {rows} = await db.query('DELETE FROM orders WHERE id=$1 RETURNING *;', [id]);
+        const {rows} = await pool.query('DELETE FROM orders WHERE id=$1 RETURNING *;', [id]);
         res.json(rows[0])
 
     } catch(err){
