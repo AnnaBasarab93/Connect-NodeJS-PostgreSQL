@@ -11,7 +11,7 @@ try{
         res.json(rows)
 }catch(error) {
         res.status(500).json(error)
-    }
+}
 })
 
 // GET  /:id :  To get one user (with the id) 
@@ -19,16 +19,15 @@ usersRouter.get("/:id", async (req, res) => {
         const {id} = req.params;
 try{
         const user = await pool.query('SELECT * FROM users WHERE id=$1;', [id])
-if(user.rows.length > 0){
+if(user.rows.length !== 0){
         const {rows} = await pool.query('SELECT * FROM users WHERE id=$1;', [id])
         res.json(rows[0])
 }else{
         res.status(404).json({message : "User doesn't found"})
-    }
-            
+}
 }catch(error){
         res.status(500).json(error)
-    }
+}
 })
 
 //POST / -> To create a new user 
@@ -41,7 +40,7 @@ usersRouter.post("/",[
         const errors = validationResult(req);
 if(!errors.isEmpty()){
         res.status(400).json({ errors: errors.array() });
-    };
+};
 
         const {first_name, last_name, age} = req.body;
 try{
@@ -50,7 +49,7 @@ try{
 
 }catch(err){
         res.status(500).json(err)
-    }
+}
 })
 
 //PUT /:id  :  To edit one user (with the id) 
@@ -63,22 +62,22 @@ usersRouter.put("/:id",[
         const errors = validationResult(req);
 if(!errors.isEmpty()){
         res.status(400).json({ errors: errors.array() })
-    };
+};
 
         const {first_name, last_name, age} = req.body;
         const {id} = req.params;
 try{
-        const chechUsers = await pool.query ('SELECT * FROM users WHERE id=$1;', [id])
-if(chechUsers.rows.length > 0){
+        const checkUsers = await pool.query ('SELECT * FROM users WHERE id=$1;', [id])
+if(checkUsers.rows.length > 0){
         const {rows} = await pool.query('UPDATE users SET first_name=$1, last_name=$2, age=$3  WHERE id=$4 RETURNING *;', [first_name, last_name, age, id]);
         res.json(rows[0])
 }else {
         res.status(404).json({message : "User doesn't found"})
-    }
+}
 
 }catch(err){
         res.status(500).json(err)
-    }
+}
 })
 
 //DELETE  /:id : To delete one order (with the id) 
@@ -87,15 +86,15 @@ usersRouter.delete("/:id", async (req, res) => {
         const {id} = req.params;
 try{
         const findUser = await pool.query('SELECT * FROM users WHERE id=$1;', [id])
-if(findUser.rows.length > 0){
+if(findUser.rows.length !== 0){
         const {rows} = await pool.query('SELECT * FROM users WHERE id=$1;', [id])
         res.json(rows[0])
 }else{
         res.status(404).json({message : "User doesn't found"})
-    }
+}
 }catch(err){
         res.status(500).json(err)
-    }
+}
 })
 //GET /:id/orders : To get all orders linked to a specific user
 
@@ -106,7 +105,7 @@ try{
         res.json(rows[0])
 }catch(err) {
         res.status(500).json(err)
-    }
+}
 })
 
 
@@ -124,7 +123,7 @@ if(!checkOrders.user_id){
         }
 }catch(err) {
         res.status(500).json(err)
-    }
+}
 })
 
 
