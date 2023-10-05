@@ -1,7 +1,14 @@
 import express from 'express';
 const usersRouter = express.Router();
-import { check, validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import  pool from '../db/pool.js';
+
+
+const userValidation = [
+        body('first_name').notEmpty().isString(),
+        body('last_name').notEmpty().isString(),
+        body('age').notEmpty().isInt({min:1}),
+];
 
 //GET  /  : To get all the users 
 
@@ -32,11 +39,7 @@ if(user.rows.length !== 0){
 
 //POST / -> To create a new user 
 
-usersRouter.post("/",[
-        check('first_name').notEmpty().isString(),
-        check('last_name').notEmpty().isString(),
-        check('age').notEmpty().isInt({min:1}),
-], async (req, res) => {
+usersRouter.post("/", userValidation, async (req, res) => {
         const errors = validationResult(req);
 if(!errors.isEmpty()){
         res.status(400).json({ errors: errors.array() });
@@ -54,11 +57,7 @@ try{
 
 //PUT /:id  :  To edit one user (with the id) 
 
-usersRouter.put("/:id",[
-        check('first_name').notEmpty().isString(),
-        check('last_name').notEmpty().isString(),
-        check('age').notEmpty().isInt({min :1}),
-], async (req, res) => {
+usersRouter.put("/:id",userValidation, async (req, res) => {
         const errors = validationResult(req);
 if(!errors.isEmpty()){
         res.status(400).json({ errors: errors.array() })
@@ -68,7 +67,7 @@ if(!errors.isEmpty()){
         const {id} = req.params;
 try{
         const checkUsers = await pool.query ('SELECT * FROM users WHERE id=$1;', [id])
-if(checkUsers.rows.length > 0){
+if(checkUsers.rows.length !== 0){
         const {rows} = await pool.query('UPDATE users SET first_name=$1, last_name=$2, age=$3  WHERE id=$4 RETURNING *;', [first_name, last_name, age, id]);
         res.json(rows[0])
 }else {

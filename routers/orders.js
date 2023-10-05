@@ -1,7 +1,12 @@
 import express from 'express';
-import { check, validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 const ordersRouter = express.Router();
 import pool from '../db/pool.js';
+
+const ordersValidation = [
+        body('price').notEmpty().isInt(),
+        body('date').notEmpty().isDate(),
+];
 
 //GET  /  : To get all the orders 
 
@@ -29,10 +34,7 @@ try{
 
 //POST / -> To create a new order
 
-ordersRouter.post("/",[
-        check('price').notEmpty().isInt(),
-        check('date').notEmpty().isDate(),
-], async (req, res) => {
+ordersRouter.post("/", ordersValidation, async (req, res) => {
     const errors = validationResult(req);
 if(!errors.isEmpty()){
         return res.status(400).json({ errors: errors.array() });
@@ -49,11 +51,8 @@ try{
 
 //PUT /:id  :  To edit one order (with the id) 
 
-ordersRouter.put("/:id", [
-        check('price').notEmpty().isInt(),
-        check('date').notEmpty().isDate(),
-], async (req, res) => {
-    const errors = validationResult(req);
+ordersRouter.put("/:id", ordersValidation, async (req, res) => {
+        const errors = validationResult(req);
 if(!errors.isEmpty()){
         return res.status(400).json({ errors: errors.array() });
     };
@@ -82,6 +81,7 @@ try{
         res.status(500).json(err)
     }
 })
+
 
 
 export default ordersRouter;
